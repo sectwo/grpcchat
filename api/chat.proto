@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package chat;
+option go_package = "study/chatting/api";
+
+// 채팅 메시지를 정의하는 메시지 타입
+message ChatMessage {
+  string channel = 1;  // 채널 이름
+  string user = 2;     // 사용자 이름
+  string message =3;   // 메시지 내용
+}
+
+message ChannelRequest {
+  string name = 1;
+  string action = 2; // 채널 "create" 또는 "delete"
+}
+
+message ChannelResponse {
+  string name = 1;      // 채널 이름
+  bool success = 2;     // 요청 처리 성공 여부
+  string message = 3;   // 추가 메시지 또는 오류 메시지
+}
+
+message ChannelListRequest {
+}
+
+message ChannelListResponse {
+  repeated string channels = 1;  // 채널이름 목록 - list 는 여러 string 을 가지기때문에 앞에 repeated 를 추가함
+}
+
+// 채널의 사용자 목록을 요청하기 위한 메시지
+message ChannelUsersRequest {
+  string channel = 1;         // 채널 이름
+}
+
+// 채널의 사용자 목록에 대한 응답 메시지
+message ChannelUsersResponse {
+  repeated string users = 1; // 사용자 이름 목록
+}
+
+
+// 채팅 서비스 정의
+service ChatService {
+  // 채널관리(생성 및 제거)
+  rpc ManageChannel(ChannelRequest) returns (ChannelResponse) {}
+  // 채널목록 요청
+  rpc ListChannels(ChannelListRequest) returns (ChannelListResponse) {}
+  // 클라이언트가 메시지를 전송할 수 있는 메서드
+  rpc SendMessage(stream ChatMessage) returns (stream ChatMessage) {}
+  // 채널의 사용자 목록 요청
+  rpc ListChannelUsers(ChannelUsersRequest) returns (ChannelUsersResponse) {}
+}
